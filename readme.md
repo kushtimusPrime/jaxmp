@@ -19,7 +19,7 @@ Supports:
 
 ## Installation
 ```
-pip install git+https://github.com/chungmin99/jaxmp.git
+pip install git+https://github.com/kushtimusprime/jaxmp.git
 ```
 
 To run examples, install with `pip install -e .[examples]`.
