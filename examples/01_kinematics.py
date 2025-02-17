@@ -32,8 +32,8 @@ def main(
     rest_weight: float = 0.01,
     limit_weight: float = 100.0,
     device: Literal["cpu", "gpu"] = "cpu",
-    robot_description: Optional[str] = "yumi",
-    robot_urdf_path: Optional[Path] = None,
+    robot_description: Optional[str] = None,
+    robot_urdf_path: Optional[Path] = Path('/home/lifelong/fogros_davinci/ros2_ws/src/urdf_pkg/urdfs_and_xacros/psm2.urdf'),
 ):
     """
     Test robot inverse kinematics using JaxMP.
@@ -230,6 +230,7 @@ def main(
 
         # Solve!
         start_time = time.time()
+
         base_pose, joints = solve_ik(
             kin,
             target_poses,
@@ -257,6 +258,7 @@ def main(
         urdf_base_frame.position = onp.array(base_pose.translation())
         urdf_base_frame.wxyz = onp.array(base_pose.rotation().wxyz)
         urdf_vis.update_cfg(onp.array(joints))
+        
         for target_frame_handle, target_joint_idx in zip(
             target_frame_handles, target_joint_indices
         ):
@@ -266,12 +268,16 @@ def main(
             target_frame_handle.position = onp.array(T_target_world.translation())
             target_frame_handle.wxyz = onp.array(T_target_world.rotation().wxyz)
 
-        # Update manipulability cost.
-        manip_cost = 0
-        for target_joint_idx in target_joint_indices:
-            manip_cost += RobotFactors.manip_yoshikawa(kin, joints, target_joint_idx)
-        manip_cost /= len(target_joint_indices)
-        manipulability_cost_handler.value = onp.array(manip_cost).item()
+        # Throws error initially so we added this here
+        try:
+            # Update manipulability cost.
+            manip_cost = 0
+            for target_joint_idx in target_joint_indices:
+                manip_cost += RobotFactors.manip_yoshikawa(kin, joints, target_joint_idx)
+            manip_cost /= len(target_joint_indices)
+            manipulability_cost_handler.value = onp.array(manip_cost).item()
+        except:
+            pass
 
 
 if __name__ == "__main__":
